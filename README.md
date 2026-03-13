@@ -34,16 +34,7 @@ Pillow==10.0.0/
 tensorflow==2.13.0/
 numpy>=1.22,<1.25/
 
-Plant Disease Detector/
-│
-├── ai_model/                # Trained AI model files
-├── plant_detector/          # Django project settings
-├── detector/                # Disease detection logic
-├── media/                   # Uploaded leaf images and results
-├── templates/               # HTML templates
-├── static/                  # CSS / JS files
-├── manage.py                # Django management script
-└── README.md
+
 
 
 
