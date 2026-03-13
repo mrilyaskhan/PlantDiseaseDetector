@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'css/custom.css' %}">
+
+<div class="upload-container">
+
+    <div class="upload-card">
+        <h3 class="upload-title">Upload Leaf Image</h3>
+        <p class="upload-subtitle">
+            Upload a clear leaf image to detect plant disease
+        </p>
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="upload-form">
+                {{ form|crispy }}
+            </div>
+
+            <!-- Image Preview -->
+            <div class="image-preview" id="previewBox">
+                <p>No image selected</p>
+                <img id="previewImg">
+            </div>
+
+            <div class="upload-actions">
+                <button type="submit" class="btn-upload">
+                    Upload & Predict
+                </button>
+
+                <a href="{% url 'detector:dashboard' %}" class="btn-back">
+                    Back to Dashboard
+                </a>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+<script>
+    const input = document.querySelector('input[type="file"]');
+    const previewBox = document.getElementById('previewBox');
+    const previewImg = document.getElementById('previewImg');
+
+    if (input) {
+        input.addEventListener('change', function () {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function () {
+                    previewImg.src = reader.result;
+                    previewImg.style.display = "block";
+                    previewBox.querySelector('p').style.display = "none";
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+</script>
+
+{% endblock %}

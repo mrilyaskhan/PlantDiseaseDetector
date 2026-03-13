@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/custom.css' %}">
+
+<!-- ===============================
+     DASHBOARD HEADER
+================================ -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">Dashboard</h2>
+
+    <!-- Upload button -->
+    <a href="{% url 'detector:upload' %}" class="btn btn-success">
+        <i class="bi bi-upload"></i> Upload New Leaf
+    </a>
+</div>
+
+<!-- ===============================
+     CENTER SUCCESS / ERROR MESSAGES
+================================ -->
+{% if messages %}
+<div class="message-card-container" id="messageCard">
+    {% for message in messages %}
+        <div class="message-card {{ message.tags }}">
+            {{ message }}
+            <button class="btn btn-sm btn-outline-primary ms-2" onclick="closeMessage()">OK</button>
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- ===============================
+     IMAGE TABLE
+================================ -->
+{% if images %}
+<table class="dashboard-table table table-striped table-hover align-middle">
+    <thead class="table-dark">
+        <tr>
+            <th>#</th>
+            <th>Image</th>
+            <th>Result</th>
+            <th>Confidence</th>
+            <th>Uploaded At</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for img in images %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>
+                <img src="{{ img.image.url }}" alt="leaf">
+            </td>
+            <td>{{ img.result }}</td>
+            <td>
+                {% if img.confidence >= 0.80 %}
+                    <span class="conf-high">{{ img.confidence|floatformat:2 }}</span>
+                {% elif img.confidence >= 0.50 %}
+                    <span class="conf-medium">{{ img.confidence|floatformat:2 }}</span>
+                {% else %}
+                    <span class="conf-low">{{ img.confidence|floatformat:2 }}</span>
+                {% endif %}
+            </td>
+            <td>{{ img.uploaded_at|date:"M d, Y - g:i A" }}</td>
+            <td>
+                <button class="btn btn-sm btn-danger" data-id="{{ img.id }}" onclick="openDeleteModal(this)">
+                    <i class="bi bi-trash"></i> Delete
+                </button>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No images uploaded yet. <a href="{% url 'detector:upload' %}" class="link-primary">Upload one now</a>.</p>
+{% endif %}
+
+<!-- ===============================
+     DELETE MODAL
+================================ -->
+<div id="deleteModal" class="delete-modal">
+    <div class="delete-modal-content">
+        <h5>Are you sure?</h5>
+        <p>This image will be permanently deleted.</p>
+        <form id="deleteForm" method="POST">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger me-2">Yes, Delete</button>
+            <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">Cancel</button>
+        </form>
+    </div>
+</div>
+
+<!-- ===============================
+     JAVASCRIPT
+================================ -->
+<script>
+function openDeleteModal(button) {
+    const imgId = button.dataset.id;
+    document.getElementById('deleteForm').action = `/detector/delete/${imgId}/`;
+    document.getElementById('deleteModal').style.display = "flex";
+}
+
+function closeDeleteModal() {
+    document.getElementById('deleteModal').style.display = "none";
+}
+
+function closeMessage() {
+    const card = document.getElementById('messageCard');
+    if (card) card.style.display = "none";
+}
+
+window.onclick = function(event) {
+    const modal = document.getElementById('deleteModal');
+    if (event.target === modal) modal.style.display = "none";
+}
+</script>
+
+{% endblock %}
